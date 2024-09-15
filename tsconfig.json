@@ -7,7 +7,7 @@
       "WebWorker"
     ],
     "types": [
-      "@serwist/next/types"
+      "@serwist/next/typings"
     ],
     "allowJs": true,
     "skipLibCheck": true,
