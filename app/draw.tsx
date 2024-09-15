@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { History, MonitorUp } from "lucide-react"
 import { uploadNames } from './server'
+import Drawer from '../lib/random-draw'
 
 type DrawType = 'name' | 'column' | 'row'
 
@@ -20,9 +21,13 @@ export default function ClassroomDraw({ names }: { names: string[] }) {
   const [availableNames, setAvailableNames] = useState<string[]>(names)
   const [showType, setShowType] = useState<DrawType>('name')
   const [history, setHistory] = useState<HistoryItem[]>([])
+  let initialized = false;
 
   useEffect(() => {
-    drawName()
+    if (!initialized) {
+      drawName()
+      initialized = true
+    }
   }, [])
 
   const updateHistory = (type: DrawType, value: string | number) => {
@@ -32,7 +37,7 @@ export default function ClassroomDraw({ names }: { names: string[] }) {
   const drawColumn = () => {
     setIsAnimating(true)
     setTimeout(() => {
-      const newColumn = Math.floor(Math.random() * 6) + 1 // 1 to 6
+      const newColumn = Drawer.drawColumn()
       setHighlightedColumn(newColumn)
       setHighlightedRow(null)
       setShowType('column')
@@ -44,7 +49,7 @@ export default function ClassroomDraw({ names }: { names: string[] }) {
   const drawRow = () => {
     setIsAnimating(true)
     setTimeout(() => {
-      const newRow = Math.floor(Math.random() * 8) + 1 // 1 to 8
+      const newRow = Drawer.drawRow()
       setHighlightedRow(newRow)
       setHighlightedColumn(null)
       setShowType('row')
@@ -59,12 +64,8 @@ export default function ClassroomDraw({ names }: { names: string[] }) {
 
     setIsAnimating(true)
     setTimeout(() => {
-      const randomIndex = Math.floor(Math.random() * availableNames.length)
-      const newName = availableNames[randomIndex]
-      const updatedNames = availableNames.filter(name => name !== newName)
+      const newName = Drawer.drawName(availableNames)
       setDrawnName(newName)
-      setAvailableNames(updatedNames)
-      document.cookie = `availableNames=${encodeURIComponent(JSON.stringify(updatedNames))}; path=/; max-age=31536000`
       setShowType('name')
       updateHistory('name', newName)
       setIsAnimating(false)
