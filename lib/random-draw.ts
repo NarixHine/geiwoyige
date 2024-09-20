@@ -7,7 +7,7 @@ const sepHistory = {
 const PROB_FUNC = (x: number) => x + 1e-15
 
 function draw(type: keyof typeof sepHistory, total: number) {
-    const history = sepHistory[type];
+    const history = sepHistory[type]
     const weights = new Array(total).fill(0).map((_, i) => {
         const index = history.indexOf(i)
         return index === -1 ? 1.0 : PROB_FUNC(index / total)
@@ -39,8 +39,13 @@ function drawName(nameList: string[]) {
     return nameList[draw('name', nameList.length)]
 }
 
+function drawFeature() {
+
+}
+
 export default {
     drawColumn,
     drawRow,
     drawName,
+    drawFeature,
 }

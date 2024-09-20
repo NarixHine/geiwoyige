@@ -5,13 +5,38 @@ import { Button } from "@/components/ui/button"
 import { History, MonitorUp } from "lucide-react"
 import { uploadNames } from './server'
 import Drawer from '../lib/random-draw'
+import { ArrowsDownUp, At, Calculator, CaretUpDown, Clock, Eyeglasses, Eyes, GlobeHemisphereEast, Microscope, Notebook, Person, PersonSimpleRun, PersonSimpleSwim, Plus, Racquet, Student, Watch } from "@phosphor-icons/react"
 
-type DrawType = 'name' | 'column' | 'row'
+type DrawType = 'name' | 'column' | 'row' | 'columns'
 
 interface HistoryItem {
   type: DrawType
-  value: string | number
+  value: string | number | number[]
 }
+
+const vibrantColors = [
+  'bg-red-100', 'bg-yellow-100', 'bg-green-100', 'bg-blue-100', 'bg-indigo-100', 'bg-purple-100',
+  'bg-pink-100', 'bg-orange-100', 'bg-teal-100', 'bg-cyan-100', 'bg-lime-100', 'bg-emerald-100'
+]
+
+const features = [
+  { name: "笔袋或计算器在桌上", icon: Calculator },
+  { name: "笔记本不在桌上", icon: Notebook },
+  { name: "体育类社团课", icon: Racquet },
+  { name: "非体育类社团课", icon: Student },
+  { name: "室外专项（篮球、羽毛球、排球）", icon: PersonSimpleRun },
+  { name: "室内专项（乒乓球、游泳）", icon: PersonSimpleSwim },
+  { name: "选生物", icon: Microscope },
+  { name: "选地理或历史", icon: GlobeHemisphereEast },
+  { name: "戴表", icon: Watch },
+  { name: "不戴表", icon: Clock },
+  { name: "戴眼镜", icon: Eyeglasses },
+  { name: "不戴眼镜", icon: Eyes },
+  { name: "姓为左右结构", icon: ArrowsDownUp },
+  { name: "姓为上下结构", icon: CaretUpDown },
+  { name: "姓既不是上下结构也不是左右结构", icon: At },
+  { name: "非课代表", icon: Person },
+]
 
 export default function ClassroomDraw({ names }: { names: string[] }) {
   const [highlightedColumn, setHighlightedColumn] = useState<number | null>(null)
@@ -21,7 +46,10 @@ export default function ClassroomDraw({ names }: { names: string[] }) {
   const [availableNames, setAvailableNames] = useState<string[]>(names)
   const [showType, setShowType] = useState<DrawType>('name')
   const [history, setHistory] = useState<HistoryItem[]>([])
-  let initialized = false;
+  const [highlightedColumns, setHighlightedColumns] = useState<number[]>([])
+  const [drawnFeature, setDrawnFeature] = useState<typeof features[number] | null>(null)
+  const [featureColor, setFeatureColor] = useState<string>('')
+  let initialized = false
 
   useEffect(() => {
     if (!initialized) {
@@ -35,6 +63,7 @@ export default function ClassroomDraw({ names }: { names: string[] }) {
   }
 
   const drawColumn = () => {
+    setDrawnFeature(null)
     setIsAnimating(true)
     setTimeout(() => {
       const newColumn = Drawer.drawColumn()
@@ -47,6 +76,7 @@ export default function ClassroomDraw({ names }: { names: string[] }) {
   }
 
   const drawRow = () => {
+    setDrawnFeature(null)
     setIsAnimating(true)
     setTimeout(() => {
       const newRow = Drawer.drawRow()
@@ -59,7 +89,7 @@ export default function ClassroomDraw({ names }: { names: string[] }) {
   }
 
   const drawName = () => {
-    console.log(availableNames)
+    setDrawnFeature(null)
     if (availableNames.length === 0) return
 
     setIsAnimating(true)
@@ -68,6 +98,38 @@ export default function ClassroomDraw({ names }: { names: string[] }) {
       setDrawnName(newName)
       setShowType('name')
       updateHistory('name', newName)
+      setIsAnimating(false)
+    }, 300)
+  }
+
+  const drawColumns = (count: number) => {
+    setDrawnFeature(null)
+    setIsAnimating(true)
+    setTimeout(() => {
+      const newColumns: number[] = []
+      while (newColumns.length < count) {
+        const column = Math.floor(Math.random() * 6) + 1
+        if (!newColumns.includes(column)) {
+          newColumns.push(column)
+        }
+      }
+      setHighlightedColumns(newColumns)
+      setHighlightedColumn(null)
+      setHighlightedRow(null)
+      setShowType('columns')
+      updateHistory('columns', newColumns.toString())
+      setIsAnimating(false)
+    }, 300)
+  }
+
+  const drawFeature = () => {
+    setIsAnimating(true)
+    setTimeout(() => {
+      const randomIndex = Math.floor(Math.random() * features.length)
+      const newFeature = features[randomIndex]
+      setDrawnFeature(newFeature)
+      const randomColorIndex = Math.floor(Math.random() * vibrantColors.length)
+      setFeatureColor(vibrantColors[randomColorIndex])
       setIsAnimating(false)
     }, 300)
   }
@@ -95,44 +157,63 @@ export default function ClassroomDraw({ names }: { names: string[] }) {
         </label>
       </div>
       <div className="w-full max-w-4xl flex flex-col items-center justify-center flex-grow">
-        <div className="w-full flex flex-col items-center justify-center mb-4">
+        <div className="w-full text-2xl text-gray-600 text-center">
+          <History className="inline-block mr-2 pb-1 align-middle" />
+          {history.map((item, index) => (
+            <span key={index}>
+              {item.type === 'name' ? item.value : item.type === 'column' ? `第${item.value}列` : `第${item.value}行`}
+              {index < history.length - 1 ? ' → ' : ''}
+            </span>
+          ))}
+        </div>
+        <div className="w-full flex flex-col items-center justify-center mt-4">
           {showType === 'name' && (
             <div className="text-9xl font-bold text-center transition-opacity duration-300 ease-in-out mb-4" aria-live="polite">
               {drawnName}
             </div>
           )}
-          {(showType === 'column' || showType === 'row') && (
-            <div className="flex flex-col items-center mb-4">
-              <div className="text-7xl font-bold mb-4 text-center" aria-live="polite">
-                {showType === 'column' ? `第 ${highlightedColumn} 列` : `第 ${highlightedRow} 行`}
-              </div>
-              <div className="flex">
-                {[6, 5, 4, 3, 2, 1].map((column) => (
-                  <div key={column} className="flex flex-col-reverse">
-                    {[8, 7, 6, 5, 4, 3, 2, 1].map((row) => (
-                      <div
-                        key={`${column}-${row}`}
-                        className={`w-6 h-6 md:w-8 md:h-8 border border-gray-300 m-1 transition-colors duration-300 ease-in-out
-                          ${(showType === 'column' && highlightedColumn === column) || (showType === 'row' && highlightedRow === row) ? 'bg-gray-800' : 'bg-white'}`}
-                      />
-                    ))}
-                  </div>
-                ))}
-              </div>
+          {(showType === 'column' || showType === 'row' || showType === 'columns') && (
+            <div className="flex mt-4">
+              {[1, 2, 3, 4, 5, 6].map((column) => (
+                <div key={column} className="flex flex-col-reverse">
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map((row) => (
+                    <div
+                      key={`${column}-${row}`}
+                      className={`w-6 h-6 md:w-8 md:h-8 border border-gray-300 m-1 transition-colors duration-300 ease-in-out
+                        ${(showType === 'column' && highlightedColumn === column) ||
+                          (showType === 'row' && highlightedRow === row) ||
+                          (showType === 'columns' && highlightedColumns.includes(column)) ? 'bg-gray-800' : 'bg-white'}`}
+                    />
+                  ))}
+                </div>
+              ))}
             </div>
           )}
-          <div className="w-full text-2xl text-gray-600 mt-5 text-center">
-            <History className="inline-block mr-2 pb-1 align-middle" />
-            {history.map((item, index) => (
-              <span key={index}>
-                {item.type === 'name' ? item.value : item.type === 'column' ? `第${item.value}列` : `第${item.value}行`}
-                {index < history.length - 1 ? ' → ' : ''}
-              </span>
-            ))}
+          <div className="flex mt-4 space-x-4 items-center justify-center">
+            {drawnFeature && (
+              <div className={`px-4 py-2 ${featureColor} rounded-full text-lg md:text-2xl text-gray-800 transition-all duration-300 ease-in-out flex items-center`} aria-live="polite">
+                <drawnFeature.icon className="w-10 h-10 mr-2" />
+                {drawnFeature.name}
+              </div>
+            )}
+            <Button
+              onClick={drawFeature}
+              className="w-14 h-14 rounded-full bg-gray-200 text-gray-800 hover:bg-gray-300 transition-all duration-300 flex items-center justify-center shadow-md hover:shadow-lg"
+              disabled={isAnimating}
+            >
+              <Plus className="w-8 h-8" />
+            </Button>
           </div>
         </div>
       </div>
       <div className="w-full max-w-lg flex items-end justify-center space-x-4 px-8 bg-white bg-opacity-80 rounded-full shadow-lg backdrop-blur-sm fixed bottom-8 left-1/2 transform -translate-x-1/2 h-20">
+        <Button
+          onClick={() => drawColumns(2)}
+          className="w-20 h-20 rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200 transition-all duration-300 flex items-center justify-center text-2xl font-medium transform -translate-y-8 shadow-md hover:shadow-lg hover:scale-110 hover:-translate-y-10"
+          disabled={isAnimating}
+        >
+          ⅓
+        </Button>
         <Button
           onClick={drawColumn}
           className="w-20 h-20 rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200 transition-all duration-300 flex items-center justify-center text-2xl font-medium transform -translate-y-8 shadow-md hover:shadow-lg hover:scale-110 hover:-translate-y-10"
@@ -142,7 +223,7 @@ export default function ClassroomDraw({ names }: { names: string[] }) {
         </Button>
         <Button
           onClick={drawName}
-          className="w-28 h-28 rounded-full bg-gray-800 text-white hover:bg-gray-700 transition-all duration-300 flex items-center justify-center text-5xl shadow-lg hover:shadow-xl transform -translate-y-10 hover:scale-110 hover:-translate-y-12"
+          className="w-36 h-28 rounded-full bg-gray-800 text-white hover:bg-gray-700 transition-all duration-300 flex items-center justify-center text-5xl shadow-lg hover:shadow-xl transform -translate-y-10 hover:scale-110 hover:-translate-y-12"
           disabled={isAnimating || availableNames.length === 0}
         >
           ¹⁄₄₈
@@ -154,7 +235,14 @@ export default function ClassroomDraw({ names }: { names: string[] }) {
         >
           ⅛
         </Button>
+        <Button
+          onClick={() => drawColumns(3)}
+          className="w-20 h-20 rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200 transition-all duration-300 flex items-center justify-center text-2xl font-medium transform -translate-y-8 shadow-md hover:shadow-lg hover:scale-110 hover:-translate-y-10"
+          disabled={isAnimating}
+        >
+          ½
+        </Button>
       </div>
-    </div>
+    </div >
   )
 }
