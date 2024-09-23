@@ -1,4 +1,4 @@
-import { ArrowsDownUp, At, Calculator, CaretUpDown, Clock, Eyeglasses, Eyes, GlobeHemisphereEast, Microscope, Person, PersonSimpleRun, PersonSimpleSwim, Racquet, Student, Watch, Brain, OfficeChair, Triangle, Square, Cake, Bread, PaintBrush, Exam, Article, Sun, Cloud, NumberNine, NumberSeven } from "@phosphor-icons/react"
+import { ArrowsDownUp, At, Calculator, CaretUpDown, Eyeglasses, Eyes, GlobeHemisphereEast, Microscope, Person, PersonSimpleRun, PersonSimpleSwim, Racquet, Student, Brain, OfficeChair, Triangle, Square, PaintBrush, Exam, Article, Sun, Cloud, NumberNine, NumberSeven } from "@phosphor-icons/react"
 
 export const vibrantColors = [
   'bg-red-100', 'bg-yellow-100', 'bg-green-100', 'bg-blue-100', 'bg-indigo-100', 'bg-purple-100',
@@ -40,10 +40,3 @@ export const features = [
   { name: "学生会成员", icon: OfficeChair },
   { name: "非学生会成员", icon: Student },
 ]
-
-const _problematicFeatures = [
-  { name: "戴表", icon: Watch },
-  { name: "不戴表", icon: Clock },
-  { name: "距离下一个生日≤6个月", icon: Cake },
-  { name: "距离下一个生日>6个月", icon: Bread },
-] // deprecated
