@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { History, MonitorUp } from "lucide-react"
 import { uploadNames } from './server'
-import { Drawer } from './random-draw'
+import { Drawer } from '../lib/random-draw'
 import { Plus } from '@phosphor-icons/react'
 import { vibrantColors } from '@/lib/arrays'
 

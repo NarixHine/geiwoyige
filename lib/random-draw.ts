@@ -42,7 +42,7 @@ function draw<T extends string | number | { name: string }>(type: keyof typeof s
 }
 
 function drawColumn() {
-    return draw('column', new Array(6).fill(0).map((_, i) => i + 1))
+    return draw('column', new Array(COLUMNS).fill(0).map((_, i) => i + 1))
 }
 
 function drawColumns(count: number) {
@@ -50,7 +50,7 @@ function drawColumns(count: number) {
 }
 
 function drawRow() {
-    return draw('row', new Array(8).fill(0).map((_, i) => i + 1))
+    return draw('row', new Array(ROWS).fill(0).map((_, i) => i + 1))
 }
 
 function drawName(nameList: string[]) {
