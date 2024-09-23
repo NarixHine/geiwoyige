@@ -4,8 +4,9 @@ import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { History, MonitorUp } from "lucide-react"
 import { uploadNames } from './server'
-import Drawer from '../lib/random-draw'
+import { Drawer } from './random-draw'
 import { Plus } from '@phosphor-icons/react'
+import { vibrantColors } from '@/lib/arrays'
 
 type DrawType = 'name' | 'column' | 'row' | 'columns'
 
@@ -13,11 +14,6 @@ interface HistoryItem {
   type: DrawType
   value: string | number | number[]
 }
-
-const vibrantColors = [
-  'bg-red-100', 'bg-yellow-100', 'bg-green-100', 'bg-blue-100', 'bg-indigo-100', 'bg-purple-100',
-  'bg-pink-100', 'bg-orange-100', 'bg-teal-100', 'bg-cyan-100', 'bg-lime-100', 'bg-emerald-100'
-]
 
 export default function ClassroomDraw({ names }: { names: string[] }) {
   const [highlightedColumn, setHighlightedColumn] = useState<number | null>(null)
@@ -39,7 +35,8 @@ export default function ClassroomDraw({ names }: { names: string[] }) {
     setDrawnFeature(null)
     setIsAnimating(true)
     setTimeout(() => {
-      const newColumn = Drawer.drawColumn()
+      const result = Drawer.drawColumn()
+      const newColumn = result.name
       setHighlightedColumn(newColumn)
       setHighlightedRow(null)
       setShowType('column')
@@ -52,7 +49,8 @@ export default function ClassroomDraw({ names }: { names: string[] }) {
     setDrawnFeature(null)
     setIsAnimating(true)
     setTimeout(() => {
-      const newRow = Drawer.drawRow()
+      const result = Drawer.drawRow()
+      const newRow = result.name
       setHighlightedRow(newRow)
       setHighlightedColumn(null)
       setShowType('row')
@@ -67,7 +65,8 @@ export default function ClassroomDraw({ names }: { names: string[] }) {
 
     setIsAnimating(true)
     setTimeout(() => {
-      const newName = Drawer.drawName(availableNames)
+      const result = Drawer.drawName(availableNames)
+      const newName = result.name
       setDrawnName(newName)
       setShowType('name')
       updateHistory('name', newName)
@@ -79,7 +78,8 @@ export default function ClassroomDraw({ names }: { names: string[] }) {
     setDrawnFeature(null)
     setIsAnimating(true)
     setTimeout(() => {
-      const newColumns: number[] = Drawer.drawColumns(count)
+      const result = Drawer.drawColumns(count)
+      const newColumns = result.map(column => column.name)
       setHighlightedColumns(newColumns)
       setHighlightedColumn(null)
       setHighlightedRow(null)
@@ -92,7 +92,8 @@ export default function ClassroomDraw({ names }: { names: string[] }) {
   const drawFeature = () => {
     setIsAnimating(true)
     setTimeout(() => {
-      const newFeature = Drawer.drawFeature();
+      const result = Drawer.drawFeature();
+      const newFeature = result.name
       setDrawnFeature(newFeature)
       const randomColorIndex = Math.floor(Math.random() * vibrantColors.length)
       setFeatureColor(vibrantColors[randomColorIndex])
@@ -139,13 +140,13 @@ export default function ClassroomDraw({ names }: { names: string[] }) {
             </div>
           )}
           {(showType === 'column' || showType === 'row' || showType === 'columns') && (
-            <div className="flex mt-4">
+            <div className="flex flex-row-reverse mt-4">
               {[1, 2, 3, 4, 5, 6].map((column) => (
-                <div key={column} className="flex flex-col-reverse">
+                <div key={column} className="flex flex-col">
                   {[1, 2, 3, 4, 5, 6, 7, 8].map((row) => (
                     <div
                       key={`${column}-${row}`}
-                      className={`w-6 h-6 md:w-8 md:h-8 border border-gray-300 m-1 transition-colors duration-300 ease-in-out
+                      className={`w-6 h-5 md:w-8 md:h-6 border border-gray-300 m-1 transition-colors duration-300 ease-in-out
                         ${(showType === 'column' && highlightedColumn === column) ||
                           (showType === 'row' && highlightedRow === row) ||
                           (showType === 'columns' && highlightedColumns.includes(column)) ? 'bg-gray-800' : 'bg-white'}`}
@@ -155,7 +156,7 @@ export default function ClassroomDraw({ names }: { names: string[] }) {
               ))}
             </div>
           )}
-          <div className="flex mt-4 space-x-4 items-center justify-center">
+          <div className="flex mt-4 space-x-4 items-center justify-center z-10">
             {drawnFeature && (
               <div className={`px-4 py-2 ${featureColor} rounded-full text-lg md:text-2xl text-gray-800 transition-all duration-300 ease-in-out flex items-center`} aria-live="polite">
                 <drawnFeature.icon className="w-10 h-10 mr-2" />
